@@ -1,7 +1,6 @@
 <li class="nav-item">
 <a href="{{ url('/estudiante') }}" class="brand-link">
         <img src="{{asset('img/Inicio.png')}}"
-             alt="Inicio"
              class="brand-image">
         <span>Inicio</span>
         </a>
@@ -19,7 +18,7 @@
 
 <li class="nav-item">
 <a href="{{ route('estudiante.index') }}" class="brand-link">
-<img src="{{asset('img/Asistencia.png')}}"
+<img src="{{asset('img/escaner.png')}}"
              class="brand-image">
         <span>Escanear</span>
     </a>

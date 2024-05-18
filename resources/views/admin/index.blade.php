@@ -12,54 +12,58 @@
 </div>
 <div class="container elevation-5">
     <h3 class="text-5xl text-center">Panel de usuarios</h3>
-    <div class="btn0"><a class="inline my-2 my-lg-3 float-left" href="createuser"><button type="button" class="btn btn-success">+ Añadir usuario</button></a></div>
-    <div class="btn1"><a class="inline my-2 mx-lg-2 my-lg-3 float-left" href="#miModal1"><button type="button" class="btn btn-success">! Registro de cambios</button></a></div>
+    <div class="btn0"><a class="inline my-2 my-lg-3 float-left" href="{{ route('register.index') }}"><button type="button" class="btn btn-success">+ Añadir usuario</button></a></div>
+    <div class="btn1"><a class="inline my-2 mx-lg-2 my-lg-3 float-left" href="#audit"><button type="button" class="btn btn-success">! Registro de cambios</button></a></div>
 
     <form class="form-inline my-2 my-lg-0 float-right">
         <input name="buscar" class="form-control mr-sm-2" type="search" placeholder="Buscar por C.I." aria-label="Search">
         <div class="btn2"><button class="btn btn-custom" type="submit">Buscar</button></div>
     </form>
     <br>
-    <div id="miModal1" class="modal1">
+    <div id="audit" class="modal1">
         <div class="modal1-contenido">
-            <a href="CORREGIR" align="right">Volver</a>
-            <b><h6 align="center">Auditoría de usuarios</h6></b>
+            <a href="#" align="right">Volver</a>
+            <h1>Auditoría de usuarios</h1>
             <div style="overflow-y: scroll; height: 200px;">
                 <table class="table table-hover" id="tabla">
                     <thead>
                         <tr class="table-secondary">
-                            <th>Usuario</th>
-                            <th>Acción</th>
-                            <th>Fecha</th>
+                            <th>Autor del registro</th>
+                            <th>C.I. del usuario registrado</th>
+                            <th>Acción realizado</th>
+                            <th>Fecha de realización</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($userAudit as $a)
                         <tr>
-                            <td>{{$a->user_name}}</td>
+                            <td>{{$a->added_by}} {{$a->added_last}}</td>
+                            <td>{{$a->user_ci}}</td>
                             <td>{{$a->action}}</td>
-                            <td>{{$a->action_timestamp}}</td>
+                            <td>{{$a->created_at}}</td>
                         </tr>
                         @endforeach
                     </tbody>
                 </table>
             </div>
-            <b><h6 align="center">Auditoría de asistencias</h6></b>
+            <h1>Auditoría de asistencias</h1>
             <div style="overflow-y: scroll; height: 200px;">
                 <table class="table table-hover" id="tabla">
                     <thead>
                         <tr class="table-secondary">
-                            <th>Usuario</th>
-                            <th>Acción</th>
+                            <th>Nombre</th>
+                            <th>Apellido</th>
+                            <th>CI</th>
                             <th>Fecha</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach ($asistenciaAudit as $a)
                         <tr>
-                            <td>{{$a->asistencia_id}}</td>
-                            <td>{{$a->action}}</td>
-                            <td>{{$a->action_timestamp}}</td>
+                            <td>{{$a->Nombre}}</td>
+                            <td>{{$a->Apellido}}</td>
+                            <td>{{$a->CI}}</td>
+                            <td>{{$a->created_at}}</td>
                         </tr>
                         @endforeach
                     </tbody>
@@ -72,8 +76,7 @@
         <table class="table table-hover" id="tabla">
             <thead>
                 <tr class="table-secondary">
-                    <th class="col">Nombre</th>
-                    <th class="col text-center">Apellido</th>
+                    <th class="col">Nombres y apellidos</th>
                     <th class="col text-center">CI</th>
                     <th class="col text-center">Email</th>
                     <th class="col">Rol</th>
@@ -84,8 +87,7 @@
             <tbody>
                 @foreach ($users as $a)
                 <tr>
-                    <td>{{$a->name}}</td>
-                    <td>{{$a->lastname}}</td>
+                    <td>{{$a->lastname}}, {{$a->name}}</td>
                     <td>{{$a->CI}}</td>
                     <td>{{$a->email}}</td>
                     <td>{{$a->role}}</td>
@@ -157,7 +159,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach ($materias as $a)
+                @foreach ($materias->unique('materia') as $a)
                 <tr>
                     <td>{{$a->cursos->facultad}}</td>
                     <td>{{$a->cursos->curso}}{{$a->cursos->carrera}}</td>
@@ -179,7 +181,7 @@
             </tbody>
         </table>
         <div class="d-flex justify-content-5px">
-            {{ $users->links() }} 
+            {{ $materias->links() }} 
         </div>
     </div>
     <div class="card-container">
@@ -187,10 +189,10 @@
             <h2 class="text-5xl text-center">Total de cursos: {{ $cantcurso }}</h2>
         </div>
         <div class="card2 elevation-3">
-            <h2 class="text-5xl text-center">Total de materias: {{ $cantasig }}</h2>
+            <h2 class="text-5xl text-center">Total de materias: {{ $materiasString }}</h2>
         </div>
         <div class="card3 elevation-3"> 
-            <h2 class="text-5xl text-center">Total de carreras: {{ $cantest }}</h2>
+            <h2 class="text-5xl text-center">Total de carreras: {{ $cantcarrera }}</h2>
         </div>
     </div>
 </div>

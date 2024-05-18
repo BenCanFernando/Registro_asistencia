@@ -1,6 +1,6 @@
 @extends('estudiante.app')
 @section('content')
-@include('flash::message')
+<br><br><br><br>
 <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
 <link rel="stylesheet" type="text/css" href="{{asset('css/Stylecss.css')}}">
   <script src="assets/plugins/qrCode.min.js"></script>
@@ -22,6 +22,7 @@
         <button class="btn btn-danger btn-sm rounded-3 mx-lg-2" onclick="cerrarCamara()">Detener camara</button>
       </div>
     </div>
+    <br><br><br><br><br><br><br>
   </div>
   <audio id="audioScaner" src="assets/sonido.mp3"></audio>
   <script>
@@ -92,15 +93,17 @@ qrcode.callback = (respuesta) => {
     var code = respuesta;
     var valores = code.split(',');
     var codigo = valores[1];
-    var valid = valores[2];
+    var valid = new Date(valores[2]);
     var userId = document.body.dataset.userId;
     var token = " {{ csrf_token() }} ";
 
      //Validar QR
-      var ahora = new Date();
-      var tiempoTranscurrido = ahora - new Date(valid);
-  
-      if (tiempoTranscurrido <= 600000) {
+    var ahora = new Date();
+    var tiempoTranscurrido = ahora - valid;
+    var diferenciaSegundos = tiempoTranscurrido / 1000;
+    console.log("id: "+tiempoTranscurrido)
+
+    if (diferenciaSegundos <= 60) {
       // Crear un formulario oculto
       var form = document.createElement("form");
       form.method = "POST";

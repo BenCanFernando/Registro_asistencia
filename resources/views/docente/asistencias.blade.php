@@ -7,37 +7,61 @@
 <link rel="stylesheet" type="text/css" href="{{asset('css/Stylecss.css')}}">
 <div class="elevation-4">
   </div>
-  <form action="{{ route('docente.asistencias', ['id' => $materia->id]) }}" method="post" enctype="multipart/from-data">
+ 
   <div class="text-center">
-	<h3>Lista de asistencias - {{ $materia->materia }}</h3>
+	<h3>Lista de asistencias - {{ $asignatura->materia }}</h3>
 </div>
 <div class="container">
-    <br>
-    <a class="inline my-2 mx-lg-2 my-lg-3 float-left" href="#miModal1"><button type="button" class="btn btn-success">Añadir asistencia</button></a>
+<a class="inline my-2 mx-lg-2 my-lg-3 float-left" href="#asist"><button type="button" class="btn btn-success">Añadir asistencia</button></a>
+<form action="{{ route('docente.asistencias', ['materia' => $asignatura->code]) }}" method="GET" class="form-inline my-2 my-lg-0 float-right">
+        @csrf
+        <label for="fecha">Selecciona una fecha </label>
+        <select name="fecha" id="fecha" class="form-control">
+            @foreach ($fechasAsistencia as $fecha)
+                <option value="{{ $fecha }}" {{ request('fecha') == $fecha ? 'selected' : '' }}>{{ $fecha }}</option>
+            @endforeach
+        </select>
+        <button type="submit" class="btn btn-custom">Mostrar asistencias</button>
+    </form>
     <br>
     <div class="table-responsive">
-<table class="table table-hover" id="tabla">
-    <thead>
-        <tr class="table-secondary">
-            <th>Nombre</th>
-            <th>Apellido</th>
-			<th>Fecha</th>
-			<th>Asistencia</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach ($resultados as $resultado)
-            <tr>
-                <td>{{ $resultado['nombre_usuario'] }}</td>
-                <td>{{ $resultado['apellido_usuario'] }}</td>
-				<td>{{ $resultado['fecha_asistencia'] }}</td>
-                <td>{{ $resultado['estado'] }}</td>
-            </tr>
-        @endforeach
-    </tbody>
-</table>
-
-<div id="miModal1" class="modal1">
+        <table class="table table-hover" id="tabla">
+            <thead>
+                <tr class="table-secondary">
+                    <th>Nombre</th>
+                    <th>Apellido</th>
+                    <th>Fecha del registro</th>
+                    <th>Asistencia</th>
+                </tr>
+            </thead>
+            <tbody>
+            @foreach ($usuarios as $usuario)
+                    @if($usuario->role == 'Estudiante')
+                        <tr>
+                            <td>{{ $usuario->name }}</td>
+                            <td>{{ $usuario->lastname }}</td>
+                            @if (isset($fechaClase[$usuario->id]) && $fechaClase[$usuario->id] != ' ')
+                                <td>{{ $fechaClase[$usuario->id] }}</td>
+                                <td>
+                                    <span class="badge {{ $usuariosAsistencia[$usuario->id] == 'Presente' ? 'badge-success' : 'badge-danger' }}">
+                                        {{ $usuariosAsistencia[$usuario->id] }}
+                                    </span>
+                                </td>
+                            @else
+                                <td></td>
+                                <td>
+                                    <span class="badge {{ $usuariosAsistencia[$usuario->id] == 'Presente' ? 'badge-success' : 'badge-danger' }}">
+                                        {{ $usuariosAsistencia[$usuario->id] }}
+                                    </span>
+                                </td>
+                            @endif
+                        </tr>
+                    @endif
+                @endforeach
+            </tbody>
+        </table>
+    </div>
+<div id="asist" class="modal1">
         <div class="modal1-contenido">
             <a href="#" align="right">Volver</a>
             <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
@@ -51,20 +75,19 @@
                 <form action="{{ route('usuarios.storeSeleccion') }}" method="post" enctype="multipart/from-data">
                     @csrf
                     <label for="materia">Materia</label>
-                    <input type="text" class="form-control" name="materia" id="materia">
-                    
+                    <input type="text" class="form-control" name="code" id="materia" value="{{ $asignatura->code }}">
+                    <br>
                     <label for="users">Selecciona usuarios</label>
 					<br>
                         <select class="js-example-basic-multiple" name="usuarios_idusuario[]" multiple="multiple">
-                            @foreach($users as $user)
-                                <option value="{{ $user->id }}">{{ $user->name }}  {{ $user->lastname }}</option>
+                            @foreach($usuarios as $users)
+                                <option value="{{ $users->id }}">{{ $users->name }}  {{ $users->lastname }}</option>
                             @endforeach
                         </select>
 						<div>
 						<br>
 						</div>
                     <input type="submit" class="btn btn-success" value="Guardar">
-                    <a class="pull-right" href="{{ route('docente.index') }}"><button type="button" class="btn btn-danger">Cancelar</button></a>
                 </form>
             </div>
         </div>
@@ -82,8 +105,8 @@
     });
 </script>
 
+<br><br><br>
         </div>
     </div>
-    
 </div>
 @endsection

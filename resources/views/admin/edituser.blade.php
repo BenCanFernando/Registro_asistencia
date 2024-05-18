@@ -3,7 +3,7 @@
 <br><br><br><br>
 <div class="cont2">
 </div>
-<h1>Nuevo usuario</h1>
+<h1>Editar datos del usuario</h1>
 	<div class="container elevation-5" align="center">
     <div class="form-row align-items-center">
     <div class="form-group col-md-12">

@@ -32,7 +32,7 @@
 <div class="card__img--hover2" align="center">{{$registro->cursos->curso ?? 'N/A'}} {{$registro->cursos->carrera ?? 'N/A'}}<em style="display:none height:20px">&nbsp;</em></a></div>
 
 <div class="button">
-<a href="{{ route('docente.asistencias', ['id' => $registro->id]) }}">
+<a href="{{ route('docente.asistencias', ['materia' => $registro->code]) }}">
 			 	<input type="submit"  class="bttn mr-1 ml-1" value="Detalles">
 			 	</a>
   </div>

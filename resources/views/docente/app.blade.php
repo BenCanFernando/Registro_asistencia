@@ -65,12 +65,10 @@
                     <img src="{{asset('img/logo-unae.png')}}"
                              class="header-image"
                              alt="User Image">
-                             <p><small>Sesión iniciada en: 12_03_2024, 19:03 hs.</small></p>
                     </li>
                     <!-- Menu Footer-->
                     <li class="user-footer">
-                        <a href="#" class="btn btn-default btn-flat">Perfil</a>
-                        <a href="#" class="btn btn-default btn-flat float-right"
+                        <a href="#" class="btn float-center" style="margin-left: 75px"
                            onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                             Cerrar sesión
                         </a>
