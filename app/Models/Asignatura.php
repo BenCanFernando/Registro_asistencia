@@ -24,6 +24,6 @@ class Asignatura extends Model
 
     public function usuarios()
     {
-        return $this->belongsToMany(User::class, 'asistencias', 'asignaturas_idasignatura', 'usuarios_idusuario');
+        return $this->belongsToMany(User::class, 'asistencias', 'idasignatura', 'usuarios_idusuario');
     }
 }

@@ -3,6 +3,9 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Carbon;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Http\Request;
 use App\Models\Asignatura;
 use App\Models\Asistencia;
@@ -12,11 +15,8 @@ class DocenteController extends Controller {
     
     public function index() {
 
-        //$usuario = Auth::user();
-        //$registros = Asignatura::where('usuarios_idusuario', $usuario->id)->get();
-
-        $usuario = 3;
-        $registros = Asignatura::where('usuarios_idusuario', $usuario)->get();
+        $usuario = Auth::user();
+        $registros = Asignatura::where('usuarios_idusuario', $usuario->id)->get();
 
         return view('docente.index', compact('registros'));
     }
@@ -35,50 +35,84 @@ class DocenteController extends Controller {
         return response()->json(['codigo' => $nuevoCodigo]);
     }
 
-    public function detalle($materiaId)
-    {
-        //$name = $request->get('buscar');
-        //$users = User::where('name','like',"%$name%")->paginate(4);
-        $users = User::all();
-        //$usuario = Auth::user();
-        $usuario = 3;
-        $materia = Asignatura::find($materiaId);
-        //$asistencias = Asignatura::where('usuarios_idusuario', $usuario->id)->get();
+    public function detalle(Request $request, $materia)
+{
+    $asignatura = Asignatura::where('code', $materia)->first();
+    
+    // Obtener los usuarios que pertenecen a la asignatura
+    $usuarios = User::whereIn('id', function ($query) use ($asignatura) {
+        $query->select('usuarios_idusuario')
+            ->from('asignaturas')
+            ->where('code', $asignatura->code);
+    })->get();
+    
+    // Obtener la fecha seleccionada desde la solicitud
+    $fechaSeleccionada = $request->input('fecha');
 
-        $registros = Asignatura::where('usuarios_idusuario', $usuario)->get();
-        $asistencias = Asistencia::all();
+    // Filtrar los registros de asistencia según la asignatura y la fecha seleccionada
+    $asistenciaQuery = Asistencia::where('asignaturas_idasignatura', $asignatura->code);
 
-        $usuariosPresentes = Asistencia::pluck('usuarios_idusuario')->all();
-        $usuariosAusentes = User::whereNotIn('id', $usuariosPresentes)->get();
-
-
-        $resultados = collect();
-
-        foreach ($asistencias as $asistencia) {
-            $usuario = User::find($asistencia->usuarios_idusuario);
-            $asignatura = Asignatura::find($asistencia->asignaturas_idasignatura);
-
-            if($asignatura->id == $materiaId){
-                $estado = in_array($usuario->id, $usuariosPresentes) ? 'Presente' : 'Ausente';
-
-            $resultados->push([
-            'nombre_usuario' => $usuario->name,
-            'apellido_usuario' => $usuario->lastname,
-            'nombre_asignatura' => $asignatura->materia,
-            'fecha_asistencia' => $asistencia->fecha_asist,
-            'estado' => $estado,
-            ]);
-          }
-        }
-        return view('docente.asistencias', ['resultados' => $resultados], ['materia' => $materia, 'users' => $users]);
+    if ($fechaSeleccionada) {
+        $asistenciaQuery->whereDate('fecha_asist', Carbon::parse($fechaSeleccionada)->format('Y-m-d'));
     }
 
-    public function curso() {
-        //$usuario = Auth::user();
-        //$registros = Asignatura::where('usuarios_idusuario', $usuario->id)->get();
+    $asistencia = $asistenciaQuery->get();
 
-        $usuario = 3;
-        $registros = Asignatura::where('usuarios_idusuario', $usuario)->get();
+    // Crear colecciones para almacenar la asistencia y la fecha de registro de cada usuario
+    $fechaClase = [];
+    $usuariosAsistencia = [];
+
+    foreach ($usuarios as $usuario){
+        $fechaUser = $asistencia->where('usuarios_idusuario', $usuario->id)->first();
+        
+        if ($fechaUser) {
+            $fechaClase[$usuario->id] = Carbon::parse($fechaUser->fecha_asist)->format('d-m-Y');
+            $usuariosAsistencia[$usuario->id] = 'Presente';
+        } else {
+            $fechaClase[$usuario->id] = ' ';
+            $usuariosAsistencia[$usuario->id] = 'Ausente';
+        }
+    }
+
+    // Obtener todas las fechas disponibles (para el select del formulario)
+    $fechasAsistencia = Asistencia::where('asignaturas_idasignatura', $asignatura->code)
+        ->selectRaw('DATE(fecha_asist) as fecha_unica')
+        ->distinct()
+        ->orderBy('fecha_unica', 'asc')
+        ->pluck('fecha_unica')
+        ->map(function ($fecha) {
+            return Carbon::parse($fecha)->format('d-m-Y');
+        });
+    
+    return view('docente.asistencias', compact('usuarios', 'asistencia', 'asignatura', 'usuariosAsistencia', 'fechaClase', 'fechasAsistencia'));
+}
+
+    public function filtrarPorFecha(Request $request)
+   {
+    $fechaSeleccionada = $request->input('fecha');
+
+    // Obtener la asignatura correspondiente (puedes ajustarlo según tu lógica)
+    $asignatura = Asignatura::where('code', 'codigo_de_la_materia')->first();
+
+    // Obtener los registros de asistencia para la fecha seleccionada
+    $registrosAsistencia = Asistencia::where('asignaturas_idasignatura', $asignatura->id)
+        ->whereDate('fecha_asist', $fechaSeleccionada)
+        ->get();
+
+    // Obtener todas las fechas disponibles (para el select del formulario)
+    $fechasDisponibles = Asistencia::where('asignaturas_idasignatura', $asignatura->id)
+        ->selectRaw('DATE(fecha_asist) as fecha')
+        ->distinct()
+        ->pluck('fecha');
+
+    return view('docente.asistencias', compact('registrosAsistencia', 'fechasDisponibles'));
+}
+
+    
+
+    public function curso() {
+        $usuario = Auth::user();
+        $registros = Asignatura::where('usuarios_idusuario', $usuario->id)->get();
 
         return view('docente.cursos', compact('registros'));
     }
@@ -95,21 +129,24 @@ class DocenteController extends Controller {
         $Registro->asignaturas_idasignatura = $codigoQR;
         $Registro->save();
         return view('estudiante.index');
-        //return response()->json(['success' => true]);
     }
-/*
-    public function storeSeleccion(Request $request) {
-        $input = $request->except('_token');
+
+    public function storeSeleccion(Request $request)
+    {
+        // Obtener los datos del formulario
+        $materia = $request->input('code');
+        $usuarios = $request->input('usuarios_idusuario');
     
-        $asignatura_id = $input['asignaturas_idasignatura'];
-        $usuariosIds = $input['usuarios_idusuario'];
-    
-        foreach ($usuariosIds as $usuarioId) {
-            $asistencia = new Asistencia();
-            $asistencia->usuarios_idusuario = $usuarioId;
-            $asistencia->asignaturas_idasignatura = $asignatura_id;
-            $asistencia->save();
+        // Guardar la asistencia para cada usuario seleccionado
+        foreach ($usuarios as $usuarioId) {
+            Asistencia::create([
+                'usuarios_idusuario' => $usuarioId,
+                'asignaturas_idasignatura' => $materia,
+                // Puedes agregar más campos aquí si es necesario
+            ]);
         }
-        return redirect()->route('docente.asistencia')->with('success', 'Creado correctamente');
-    }*/
+    
+        // Redireccionar a una página de confirmación o a donde desees
+        return redirect()->route('docente.index')->with('success', 'Asistencia guardada correctamente');
+    }
 }

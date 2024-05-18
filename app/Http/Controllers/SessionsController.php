@@ -49,5 +49,10 @@ class SessionsController extends Controller {
 
         return redirect()->to('login');
     }
+
+    public function reset() {
+            
+        return view('auth.passreset');
+    }
 }
 

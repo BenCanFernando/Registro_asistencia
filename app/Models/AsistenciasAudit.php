@@ -10,8 +10,10 @@ class AsistenciasAudit extends Model
     use HasFactory;
     public $table= 'asistencias_audit';
     public $fillable =[
-    	'asistencia_id',
-        'action',
-        'action_timestamp'
+    	'Nombre',
+        'Apellido',
+        'CI',
+        'created_at',
+        'updated_at'
     ];
 }

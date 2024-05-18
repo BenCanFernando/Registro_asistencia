@@ -13,12 +13,10 @@ Route::get('/', function () {
 })->middleware('auth');
 
 Route::get('/register', [RegisterController::class, 'create'])
-    ->middleware('guest')
     ->name('register.index');
 
 Route::post('/register', [RegisterController::class, 'store'])
     ->name('register.store');
-
 
 
 Route::get('/login', [SessionsController::class, 'create'])
@@ -32,6 +30,9 @@ Route::get('/logout', [SessionsController::class, 'destroy'])
     ->middleware('auth')
     ->name('login.destroy');
 
+Route::get('/passreset', [SessionsController::class, 'reset'])
+    ->middleware('guest')
+    ->name('passreset.reset');
 
     
 Route::get('/admin', [AdminController::class, 'index'])
@@ -39,7 +40,7 @@ Route::get('/admin', [AdminController::class, 'index'])
     ->name('admin.index');
 
     Route::get('/createuser', [AdminController::class, 'createuser'])
-    //->middleware('auth.admin')
+    ->middleware('auth.admin')
     ->name('admin.createuser');
 
     Route::post('/useradd', [AdminController::class, 'store'])
@@ -49,7 +50,7 @@ Route::get('/admin', [AdminController::class, 'index'])
     ->name('usuarios.storeSeleccion');
 
     Route::get('/edituser/{id}', [AdminController::class, 'editUser'])
-    //->middleware('auth.admin')
+    ->middleware('auth.admin')
     ->name('admin.edituser');
 
     Route::post('/edituser/{id}', [AdminController::class, 'updateUser'])
@@ -60,23 +61,23 @@ Route::get('/admin', [AdminController::class, 'index'])
     Route::post('/cambiar-estado', 'AdminController@cambiarEstado')->name('cambiar-estado');
 
     Route::get('/createmateria', [AdminController::class, 'createmateria'])
-    //->middleware('auth.admin')
+    ->middleware('auth.admin')
     ->name('admin.createmateria');
 
     Route::post('/materiaadd', [AdminController::class, 'materiaadd'])
-    //->middleware('auth.admin')
+    ->middleware('auth.admin')
     ->name('materiaadd.store1');
 
     Route::get('/createcurso', [AdminController::class, 'createcurso'])
-    //->middleware('auth.admin')
+    ->middleware('auth.admin')
     ->name('admin.createcurso');
 
     Route::post('/cursoadd', [AdminController::class, 'cursoadd'])
-    //->middleware('auth.admin')
+    ->middleware('auth.admin')
     ->name('cursoadd.store2');
 
     Route::get('/editmateria/{id}', [AdminController::class, 'editMateria'])
-    //->middleware('auth.admin')
+    ->middleware('auth.admin')
     ->name('admin.editmateria');
 
     Route::post('/editmateria/{id}', [AdminController::class, 'updateMateria'])
@@ -88,50 +89,49 @@ Route::get('/admin', [AdminController::class, 'index'])
 
 
     Route::get('/docente', [DocenteController::class, 'index'])
-    //->middleware('auth.docente')
+    ->middleware('auth.docente')
     ->name('docente.index');
 
     Route::get('/asignatura', [DocenteController::class, 'materias'])
-    //->middleware('auth.docente')
+    ->middleware('auth.docente')
     ->name('docente.asignatura');
 
     Route::get('/cursos', [DocenteController::class, 'curso'])
-    //->middleware('auth.docente')
+    ->middleware('auth.docente')
     ->name('docente.cursos');
 
     Route::get('/generar-qr', [DocenteController::class, 'generarQR'])
     ->name('generar-qr.generarQR');
 
     Route::get('/show/{id}', [DocenteController::class, 'show'])
-    //->middleware('auth.docente')
+    ->middleware('auth.docente')
     ->name('docente.show');
 
-    Route::get('/asistencias/{id}', [DocenteController::class, 'detalle'])
-    //->middleware('auth.docente')
+    Route::get('/asistencias/{materia}', [DocenteController::class, 'detalle'])
+    ->middleware('auth.docente')
     ->name('docente.asistencias');
 
-    Route::post('/asistencias/{id}', [DocenteController::class, 'detalle'])
+    Route::post('/asistencias/{materia}', [DocenteController::class, 'detalle'])
     ->name('docente.asistencias');
 
+    Route::post('/usuarios/storeSeleccion', [DocenteController::class, 'storeSeleccion'])
+    ->name('usuarios.storeSeleccion');
    
 
     Route::get('/estudiante', [EstudianteController::class, 'index'])
-    //->middleware('auth.estudiante')
+    ->middleware('auth.estudiante')
     ->name('estudiante.index');
 
     Route::get('/asignatura', [EstudianteController::class, 'materias'])
-    //->middleware('auth.estudiante')
+    ->middleware('auth.estudiante')
     ->name('estudiante.asignatura');
 
     Route::post('/guardar-asistencia', [EstudianteController::class, 'guardarRegistro'])
     ->name('guardar-asistencia.guardarRegistro');
 
-    Route::get('/detalles/{id}', [EstudianteController::class, 'detalle'])
-    //->middleware('auth.estudiante')
+    Route::get('/estudiante/detalles/{code}', [EstudianteController::class, 'detalle'])
     ->name('estudiante.detalles');
-
-    Route::post('/detalles/{id}', [EstudianteController::class, 'detalle'])
-    ->name('detalles.detalle');
+    
 
     return __DIR__.'/login.php';
 

@@ -10,6 +10,7 @@ class UsersAudit extends Model
     use HasFactory;
     public $table= 'users_audit';
     public $fillable =[
+        'added_by',
     	'user_id',
         'action',
         'action_timestamp'

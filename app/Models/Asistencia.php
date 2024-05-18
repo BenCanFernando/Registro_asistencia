@@ -19,6 +19,6 @@ class Asistencia extends Model
         return $this->belongsToMany(User::class,'usuarios_idusuario');
     }
     public function asignatura (){
-        return $this->belongsToMany(User::class,'asignaturas_idasignatura');
+        return $this->belongsToMany(Asignatura::class,'asignaturas_idasignatura');
     }
 }

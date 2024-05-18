@@ -20,7 +20,6 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'lastname',
-        'username',
         'CI',
         'email',
         'password',
@@ -30,7 +29,12 @@ class User extends Authenticatable
     
     public function asignaturas()
     {
-        return $this->belongsToMany(Asignatura::class, 'asistencias', 'usuarios_idusuario', 'asignaturas_idasignatura');
+        return $this->belongsToMany(Asignatura::class, 'asignaturas', 'usuarios_idusuario', 'asignaturas_idasignatura');
+    }
+
+    public function asistencias()
+    {
+        return $this->belongsToMany(Asistencia::class, 'asistencias', 'usuarios_idusuario', 'asignaturas_idasignatura');
     }
 
     /**
